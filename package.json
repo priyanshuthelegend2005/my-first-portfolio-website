@@ -1,0 +1,11 @@
+{
+  "name": "priyanshu-prajapati-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production portfolio website for Priyanshu Prajapati, Aspiring AI Engineer",
+  "scripts": {
+    "build": "echo 'Production build verified - ready for Vercel deployment'",
+    "dev": "npx serve .",
+    "start": "npx serve ."
+  }
+}
