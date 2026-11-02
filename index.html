@@ -31,6 +31,15 @@
   <!-- Stylesheets -->
   <!-- Theme Bootstrapper to prevent theme flash -->
   
+  
+
+
+  
+
+
+  
+
+
   <style>
   /* === GLOBALS === */
   /* ==========================================================================
@@ -2800,6 +2809,15 @@ button, input, textarea {
 
   <!-- JavaScript Modules -->
   
+  
+
+
+  
+
+
+  
+
+
   <script>
   /* === THEME SCRIPT === */
   /**
@@ -3206,11 +3224,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-  /* === CONTACT HANDLER === */
+  /* === CONTACT HANDLER (Web3Forms Direct to Gmail) === */
   /**
  * Contact Form Controller & Email Gateway Handler
  * Priyanshu Prajapati - Portfolio
+ * 
+ * Supports instant automatic delivery to priyanshuintershipjob.5678@gmail.com
+ * Powered by Web3Forms (100% Free, Zero-backend) with seamless Mailto fallback.
  */
+
+// Official Web3Forms Access Key for priyanshuintershipjob.5678@gmail.com
+window.WEB3FORMS_ACCESS_KEY = "49d557cb-27c2-4aa0-90aa-ea4fc15775a4";
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('portfolio-contact-form');
@@ -3232,7 +3256,6 @@ document.addEventListener('DOMContentLoaded', () => {
           copyEmailBtn.innerHTML = originalText;
         }, 2500);
       } catch (err) {
-        // Fallback prompt
         window.prompt('Copy email address:', email);
       }
     });
@@ -3338,42 +3361,62 @@ document.addEventListener('DOMContentLoaded', () => {
       if (submitBtnSpinner) submitBtnSpinner.style.display = 'inline-block';
     }
 
-    // Check if external provider config exists
-    const hasExternalConfig = window.PORTFOLIO_CONFIG && window.PORTFOLIO_CONFIG.EMAILJS_SERVICE_ID;
+    const accessKey = window.WEB3FORMS_ACCESS_KEY;
 
     try {
-      if (hasExternalConfig) {
-        // Send via configured EmailJS instance
-        await window.emailjs.send(
-          window.PORTFOLIO_CONFIG.EMAILJS_SERVICE_ID,
-          window.PORTFOLIO_CONFIG.EMAILJS_TEMPLATE_ID,
-          formData
-        );
-        showAlert('success', '✓ Message transmitted successfully! Priyanshu will respond to your inquiry shortly.');
-        form.reset();
-      } else {
-        // Honest, secure handling without fake claims:
-        // Simulate local packaging delay and present direct mailto launch
-        await new Promise(resolve => setTimeout(resolve, 800));
+      // 1. Direct automatic delivery to priyanshuintershipjob.5678@gmail.com
+      if (accessKey && accessKey !== "YOUR_ACCESS_KEY_HERE") {
+        const response = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            access_key: accessKey,
+            name: formData.name,
+            email: formData.email,
+            subject: `[Portfolio Inquiry] ${formData.subject}`,
+            message: formData.message,
+            from_name: `${formData.name} via Priyanshu's Portfolio`
+          })
+        });
 
-        const mailtoSubject = encodeURIComponent(`[Portfolio Inquiry] ${formData.subject}`);
-        const mailtoBody = encodeURIComponent(
-          `Hi Priyanshu,\n\n${formData.message}\n\nFrom: ${formData.name}\nEmail: ${formData.email}`
-        );
-        const mailtoUrl = `mailto:priyanshuintershipjob.5678@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
+        const data = await response.json();
 
-        showAlert('success', `
-          <strong>✓ Message packaged ready for dispatch!</strong><br/>
-          To ensure guaranteed delivery directly to Priyanshu's verified inbox without third-party email tracking, click below to open your preferred email client:<br/><br/>
-          <a href="${mailtoUrl}" class="btn btn-primary" style="padding: 0.5rem 1.2rem; font-size: 0.85rem; display: inline-flex; margin-top: 0.4rem;">
-            Launch Email Client (Pre-filled) ↗
-          </a>
-          <br/><br/>
-          <small style="opacity: 0.85;">Or copy the message text to send manually to <code>priyanshuintershipjob.5678@gmail.com</code>.</small>
-        `);
+        if (data.success) {
+          showAlert('success', `
+            <strong>✓ Message sent directly to Priyanshu's Gmail!</strong><br/>
+            Thank you, <b>${formData.name}</b>. Your message has been received by Priyanshu Prajapati. He will review your inquiry and get back to you soon.
+          `);
+          form.reset();
+          return;
+        } else {
+          console.warn('Web3Forms dispatch error:', data);
+        }
       }
+
+      // 2. Pre-filled Mailto Fallback
+      await new Promise(resolve => setTimeout(resolve, 600));
+
+      const mailtoSubject = encodeURIComponent(`[Portfolio Inquiry] ${formData.subject}`);
+      const mailtoBody = encodeURIComponent(
+        `Hi Priyanshu,\n\n${formData.message}\n\nFrom: ${formData.name}\nEmail: ${formData.email}`
+      );
+      const mailtoUrl = `mailto:priyanshuintershipjob.5678@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
+
+      showAlert('success', `
+        <strong>✓ Message packaged ready for dispatch!</strong><br/>
+        Click below to send directly to Priyanshu's verified inbox:<br/><br/>
+        <a href="${mailtoUrl}" class="btn btn-primary" style="padding: 0.5rem 1.2rem; font-size: 0.85rem; display: inline-flex; margin-top: 0.4rem;">
+          Launch Email Client (Pre-filled) ↗
+        </a>
+        <br/><br/>
+        <small style="opacity: 0.85;">Or copy the message text to send manually to <code>priyanshuintershipjob.5678@gmail.com</code>.</small>
+      `);
+
     } catch (err) {
-      console.error('Contact error:', err);
+      console.error('Contact submission error:', err);
       showAlert('error', '⚠️ Transmission could not be completed. Please email directly at priyanshuintershipjob.5678@gmail.com.');
     } finally {
       if (submitBtn) {
